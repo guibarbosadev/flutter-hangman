@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hangman/screens/game/game.dart';
+import 'package:hangman/screens/new-game/new_game.dart';
 
 void main() {
   runApp(MaterialApp(
-    home: Game(),
+    debugShowCheckedModeBanner: false,
+    home: NewGame(),
   ));
 }
