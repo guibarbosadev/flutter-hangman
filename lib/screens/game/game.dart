@@ -4,8 +4,12 @@ import 'package:hangman/screens/game/widgets/puzzle.dart';
 import 'game_controller.dart';
 
 class Game extends StatefulWidget {
+  final String answer;
+
   @override
   _GameState createState() => _GameState();
+
+  Game({@required this.answer});
 }
 
 class _GameState extends State<Game> {
@@ -16,7 +20,7 @@ class _GameState extends State<Game> {
 
   @override
   void initState() {
-    gameController = GameController(answer: 'banana', maxErrorCount: 7);
+    gameController = GameController(answer: widget.answer);
     _header = Header(wrongLetters: []);
     _puzzle = Puzzle(
       answerLength: gameController.answerLength,
@@ -35,13 +39,16 @@ class _GameState extends State<Game> {
         answerLength: gameController.answerLength,
         puzzleLetters: gameController.puzzleLetters,
       );
+      _header = Header(
+        wrongLetters: gameController.wrongLetters,
+      );
     });
   }
 
   _limitTextToOne(String value) {
     setState(() {
       if (value.length > 1) {
-        letter = value.substring(1, 2);
+        letter = value.substring(0, 1);
       } else {
         letter = value;
       }
@@ -94,37 +101,42 @@ class _GameState extends State<Game> {
       puzzleLetters: gameController.answer.split(''),
     );
 
+    Widget _buildPuzzle(bool alreadyLost) {
+      if (alreadyLost) {
+        return Column(
+          children: <Widget>[
+            Text(
+              'Resposta',
+              style: Theme.of(context).textTheme.subhead,
+            ),
+            answeredPuzzle,
+          ],
+        );
+      } else {
+        return _puzzle;
+      }
+    }
+
     return Scaffold(
       body: Container(
-        child: Container(
-          padding: EdgeInsets.all(32.0),
-          child: ListView(
-            children: [
-              _header,
-              title,
-              Center(child: Image.asset('${gameController.imagePath}')),
-              gameController.alreadyLost()
-                  ? Column(
-                      children: <Widget>[
-                        Text('Resposta',
-                            style: Theme.of(context).textTheme.subhead),
-                        answeredPuzzle,
-                      ],
-                    )
-                  : _puzzle,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: gameController.alreadyWon()
-                    ? <Widget>[newGameButton]
-                    : gameController.alreadyLost()
-                        ? <Widget>[newGameButton]
-                        : <Widget>[
-                            textField,
-                            submitButton,
-                          ],
-              )
-            ],
-          ),
+        child: Column(
+          children: [
+            _header,
+            title,
+            Expanded(child: Image.asset('${gameController.imagePath}')),
+            _buildPuzzle(gameController.alreadyLost()),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: gameController.alreadyWon()
+                  ? <Widget>[newGameButton]
+                  : gameController.alreadyLost()
+                      ? <Widget>[newGameButton]
+                      : <Widget>[
+                          textField,
+                          submitButton,
+                        ],
+            )
+          ],
         ),
       ),
     );

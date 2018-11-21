@@ -7,17 +7,21 @@ class Puzzle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(answerLength, (int index) {
-        return Padding(
-          padding: EdgeInsets.all(15.0),
-          child: Text(
-            puzzleLetters[index],
-            style: TextStyle(decoration: TextDecoration.underline),
-          ),
-        );
-      })
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 15.0),
+      child: Flex(
+        direction: Axis.horizontal,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(answerLength, (int index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            child: Text(
+              puzzleLetters[index],
+              style: TextStyle(decoration: TextDecoration.underline, fontSize: 20.0, fontWeight: FontWeight.bold),
+            ),
+          );
+        })
+      ),
     );
   }
 

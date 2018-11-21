@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 class GameController {
   String answer;
   int _errorCount = 0;
-  int maxErrorCount = 7;
+  final int maxErrorCount = 7;
   String imagePath = 'assets/images/hangman_0.png';
   List<String> wrongLetters = List<String>();
   List<String> rightLetters;
@@ -14,7 +14,7 @@ class GameController {
 
   void takeShot(String letter) {
     if (!alreadyTried(letter)) {
-      if (answer.contains(letter)) {
+      if (answer.toLowerCase().contains(letter.toLowerCase())) {
         _success(letter);
       } else {
         _error(letter);
@@ -68,7 +68,7 @@ class GameController {
 
   int get answerLength => answer.length;
 
-  GameController({@required this.answer, this.maxErrorCount: 7}) {
+  GameController({@required this.answer}) {
     rightLetters = List<String>();
     updatePuzzle();
   }
