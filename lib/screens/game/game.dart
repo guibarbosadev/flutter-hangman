@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hangman/screens/game/widgets/header.dart';
 import 'package:hangman/screens/game/widgets/puzzle.dart';
 import 'game_controller.dart';
+import 'package:hangman/screens/new-game/new_game.dart';
 
 class Game extends StatefulWidget {
   final String answer;
@@ -48,7 +49,7 @@ class _GameState extends State<Game> {
   _limitTextToOne(String value) {
     setState(() {
       if (value.length > 1) {
-        letter = value.substring(0, 1);
+        letter = value[value.length - 1];
       } else {
         letter = value;
       }
@@ -57,7 +58,7 @@ class _GameState extends State<Game> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget title = Text(
+    final Widget _title = Text(
       'Jogo da Forca',
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.display1.copyWith(color: Colors.black),
@@ -76,25 +77,33 @@ class _GameState extends State<Game> {
     );
 
     final Widget newGameButton = RaisedButton(
-      onPressed: () => {
-        //TODO: Generate a new game and reset the current one
+      onPressed: () {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NewGame(),
+            ),
+            (Route<dynamic> route) => false);
       },
       child: Text('Novo Jogo'),
     );
 
-    final Widget textField = Container(
-      width: 150.0,
-      child: TextField(
-        controller: TextEditingController(text: letter),
-        onChanged: (String value) {
-          _limitTextToOne(value);
-        },
-        decoration: InputDecoration(
-          labelText: 'Próxima Letra',
-          enabledBorder: InputBorder.none,
+    Widget _buildTextField(BuildContext context) {
+      return Container(
+        width: 230.0,
+        child: TextField(
+          controller: TextEditingController(text: letter),
+          onChanged: (String value) {
+            _limitTextToOne(value);
+          },
+          style: Theme.of(context).textTheme.title.copyWith(fontSize: 35.0),
+          decoration: InputDecoration(
+            labelText: 'Próxima Letra',
+            border: InputBorder.none,
+          ),
         ),
-      ),
-    );
+      );
+    }
 
     final answeredPuzzle = Puzzle(
       answerLength: gameController.answerLength,
@@ -118,21 +127,33 @@ class _GameState extends State<Game> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.brown,
+      ),
       body: Container(
-        child: Column(
+        color: Colors.brown[200],
+        child: ListView(
           children: [
             _header,
-            title,
-            Expanded(child: Image.asset('${gameController.imagePath}')),
+            _title,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Image.asset(
+                '${gameController.imagePath}',
+                width: double.infinity,
+                height: 350.0,
+              ),
+            ),
             _buildPuzzle(gameController.alreadyLost()),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: gameController.alreadyWon()
                   ? <Widget>[newGameButton]
                   : gameController.alreadyLost()
                       ? <Widget>[newGameButton]
                       : <Widget>[
-                          textField,
+                          _buildTextField(context),
                           submitButton,
                         ],
             )

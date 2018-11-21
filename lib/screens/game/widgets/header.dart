@@ -8,8 +8,9 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.brown,
+      color: Colors.brown[200],
       height: 35.0,
+      margin: EdgeInsets.only(bottom: 15.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: List.generate(
@@ -19,17 +20,21 @@ class Header extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 5.0),
               child: Text(
                 wrongLetters[index - 1],
-                style: TextStyle(
-                  fontSize: 25.0,
-                  color: Colors.white,
-                  decoration: TextDecoration.underline,
-                ),
+                style: Theme.of(context).textTheme.body1.copyWith(
+                      fontSize: 20.0,
+                      decoration: TextDecoration.underline,
+                    ),
               ),
             );
           } else {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 3.0, vertical: 8.0),
-              child: Text('Erros: ', textAlign: TextAlign.center,),
+              child: Text('Erros: ',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .subhead
+                      .copyWith(fontWeight: FontWeight.bold)),
             );
           }
         }),
