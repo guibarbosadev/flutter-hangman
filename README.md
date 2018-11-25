@@ -1,8 +1,5 @@
 # hangman
 
-A new Flutter project.
+A simple hangman game done with flutter
 
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+![Screenshot](https://github.com/guilhermebpereira/flutter-hangman/tree/master/screenshots/ss_home.png)
