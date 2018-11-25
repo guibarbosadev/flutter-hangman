@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hangman/screens/game/widgets/header.dart';
 import 'package:hangman/screens/game/widgets/puzzle.dart';
 import 'game_controller.dart';
+import 'package:hangman/screens/new-game/new_game.dart';
 
 class Game extends StatefulWidget {
   final String answer;
@@ -17,9 +18,11 @@ class _GameState extends State<Game> {
   String letter;
   Header _header;
   Puzzle _puzzle;
+  TextEditingController _textEditingController;
 
   @override
   void initState() {
+    _textEditingController = TextEditingController(text: letter);
     gameController = GameController(answer: widget.answer);
     _header = Header(wrongLetters: []);
     _puzzle = Puzzle(
@@ -47,54 +50,50 @@ class _GameState extends State<Game> {
 
   _limitTextToOne(String value) {
     setState(() {
-      if (value.length > 1) {
-        letter = value.substring(0, 1);
-      } else {
-        letter = value;
-      }
+        letter = value[value.length - 1];
+        _textEditingController.text = letter;
+        _textEditingController.selection = TextSelection.fromPosition(
+          TextPosition(offset: value.length -1)
+        );
     });
+  }
+
+   void submit(String letter) {
+      gameController.takeShot(letter);
+      letter = '';
+      _textEditingController.text = '';
+      FocusScope.of(context).requestFocus(new FocusNode());
+    }
+
+  _startNewGame(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NewGame(),
+            ),
+            (Route<dynamic> route) => false);
   }
 
   @override
   Widget build(BuildContext context) {
-    final Widget title = Text(
-      'Jogo da Forca',
-      textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.display1.copyWith(color: Colors.black),
-    );
 
-    final Widget submitButton = ButtonTheme(
-      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
-      minWidth: 20.0,
-      child: OutlineButton(
-        onPressed: () {
-          gameController.takeShot(letter);
-          FocusScope.of(context).requestFocus(new FocusNode());
-        },
-        child: Icon(Icons.done),
-      ),
-    );
-
-    final Widget newGameButton = RaisedButton(
-      onPressed: () => {
-        //TODO: Generate a new game and reset the current one
-      },
-      child: Text('Novo Jogo'),
-    );
-
-    final Widget textField = Container(
-      width: 150.0,
-      child: TextField(
-        controller: TextEditingController(text: letter),
-        onChanged: (String value) {
-          _limitTextToOne(value);
-        },
-        decoration: InputDecoration(
-          labelText: 'Próxima Letra',
-          enabledBorder: InputBorder.none,
+    Widget _buildTextField(BuildContext context) {
+      return Container(
+        width: 230.0,
+        child: TextField(
+          controller: _textEditingController,
+          onChanged: (String value) {
+            _limitTextToOne(value);
+          },
+          style: Theme.of(context).textTheme.title.copyWith(fontSize: 35.0),
+          decoration: InputDecoration(
+            labelText: 'Próxima Letra',
+            border: InputBorder.none,
+          ),
+          onSubmitted: submit
         ),
-      ),
-    );
+      );
+    }
 
     final answeredPuzzle = Puzzle(
       answerLength: gameController.answerLength,
@@ -119,21 +118,40 @@ class _GameState extends State<Game> {
 
     return Scaffold(
       body: Container(
-        child: Column(
+        color: Colors.brown[200],
+        child: ListView(
           children: [
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              alignment: Alignment.centerRight,
+              child: FlatButton(
+            child: Text('Novo Jogo', style: Theme.of(context).textTheme.button.copyWith(
+              ),),
+            onPressed: () {
+              _startNewGame(context);
+            },
+          ),
+            ),
             _header,
-            title,
-            Expanded(child: Image.asset('${gameController.imagePath}')),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Image.asset(
+                '${gameController.imagePath}',
+                width: double.infinity,
+                height: 350.0,
+              ),
+            ),
             _buildPuzzle(gameController.alreadyLost()),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: gameController.alreadyWon()
-                  ? <Widget>[newGameButton]
+                  ? []
                   : gameController.alreadyLost()
-                      ? <Widget>[newGameButton]
+                      ? []
                       : <Widget>[
-                          textField,
-                          submitButton,
+                          _buildTextField(context),
                         ],
             )
           ],
