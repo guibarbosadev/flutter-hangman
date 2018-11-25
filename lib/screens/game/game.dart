@@ -18,9 +18,11 @@ class _GameState extends State<Game> {
   String letter;
   Header _header;
   Puzzle _puzzle;
+  TextEditingController _textEditingController;
 
   @override
   void initState() {
+    _textEditingController = TextEditingController(text: letter);
     gameController = GameController(answer: widget.answer);
     _header = Header(wrongLetters: []);
     _puzzle = Puzzle(
@@ -48,51 +50,38 @@ class _GameState extends State<Game> {
 
   _limitTextToOne(String value) {
     setState(() {
-      if (value.length > 1) {
         letter = value[value.length - 1];
-      } else {
-        letter = value;
-      }
+        _textEditingController.text = letter;
+        _textEditingController.selection = TextSelection.fromPosition(
+          TextPosition(offset: value.length -1)
+        );
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final Widget _title = Text(
-      'Jogo da Forca',
-      textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.display1.copyWith(color: Colors.black),
-    );
+   void submit(String letter) {
+      gameController.takeShot(letter);
+      letter = '';
+      _textEditingController.text = '';
+      FocusScope.of(context).requestFocus(new FocusNode());
+    }
 
-    final Widget submitButton = ButtonTheme(
-      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.0),
-      minWidth: 20.0,
-      child: OutlineButton(
-        onPressed: () {
-          gameController.takeShot(letter);
-          FocusScope.of(context).requestFocus(new FocusNode());
-        },
-        child: Icon(Icons.done),
-      ),
-    );
-
-    final Widget newGameButton = RaisedButton(
-      onPressed: () {
-        Navigator.pushAndRemoveUntil(
+  _startNewGame(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => NewGame(),
             ),
             (Route<dynamic> route) => false);
-      },
-      child: Text('Novo Jogo'),
-    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     Widget _buildTextField(BuildContext context) {
       return Container(
         width: 230.0,
         child: TextField(
-          controller: TextEditingController(text: letter),
+          controller: _textEditingController,
           onChanged: (String value) {
             _limitTextToOne(value);
           },
@@ -101,6 +90,7 @@ class _GameState extends State<Game> {
             labelText: 'Próxima Letra',
             border: InputBorder.none,
           ),
+          onSubmitted: submit
         ),
       );
     }
@@ -127,15 +117,23 @@ class _GameState extends State<Game> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.brown,
-      ),
       body: Container(
         color: Colors.brown[200],
         child: ListView(
           children: [
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              alignment: Alignment.centerRight,
+              child: FlatButton(
+            child: Text('Novo Jogo', style: Theme.of(context).textTheme.button.copyWith(
+              ),),
+            onPressed: () {
+              _startNewGame(context);
+            },
+          ),
+            ),
             _header,
-            _title,
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: Image.asset(
@@ -149,12 +147,11 @@ class _GameState extends State<Game> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: gameController.alreadyWon()
-                  ? <Widget>[newGameButton]
+                  ? []
                   : gameController.alreadyLost()
-                      ? <Widget>[newGameButton]
+                      ? []
                       : <Widget>[
                           _buildTextField(context),
-                          submitButton,
                         ],
             )
           ],

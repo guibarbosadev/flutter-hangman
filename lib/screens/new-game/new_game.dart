@@ -24,13 +24,10 @@ class NewGame extends StatelessWidget {
   }
 
   Widget _buildTitle(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 100.0),
-      child: Text(
-        'Palavra da vez: ',
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.title,
-      ),
+    return Text(
+      'Palavra da vez: ',
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.title,
     );
   }
 
@@ -39,24 +36,10 @@ class NewGame extends StatelessWidget {
       child: TextField(
         controller: _textEditingController,
         decoration: InputDecoration(border: InputBorder.none),
-        autofocus: true,
         style: Theme.of(context).textTheme.title.copyWith(fontSize: 35.0),
         textAlign: TextAlign.center,
         focusNode: _focusNode,
-      ),
-    );
-  }
-
-  Widget _buildNewGameButton(BuildContext context) {
-    return Expanded(
-      child: Align(
-        alignment: Alignment.bottomRight,
-        child: RaisedButton(
-          onPressed: () {
-            startNewGame(context);
-          },
-          child: Text('Novo jogo'),
-        ),
+        onSubmitted: (String value) { startNewGame(context);},
       ),
     );
   }
@@ -64,6 +47,9 @@ class NewGame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Jogo da Forca'),
+      ),
       body: InkWell(
         splashColor: Colors.brown[100],
         highlightColor: Colors.brown[100],
@@ -72,19 +58,16 @@ class NewGame extends StatelessWidget {
         },
         child: Container(
           color: Colors.brown[200],
-          padding: EdgeInsets.only(
-            top: 20.0,
-            right: 20.0,
-            bottom: 140.0,
-            left: 20.0,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              _buildTitle(context),
-              _buildTextField(context),
-              _buildNewGameButton(context),
-            ],
+          padding: EdgeInsets.all(20.0),
+          child: Container(
+            alignment: Alignment.center,
+            child: ListView(
+              shrinkWrap: true,
+              children: <Widget>[
+                _buildTitle(context),
+                _buildTextField(context),
+              ],
+            ),
           ),
         ),
       ),
